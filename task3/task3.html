@@ -53,21 +53,19 @@
     </nav>
     <p class="text-form">GET IN TOUCH</p>
     <div class="mb-3">
-      <label for="exampleFormControlInput1" class="form-label">Name</label>
-      <input type="email" class="form-control" id="exampleFormControlInput1" />
+      <label for="name" class="form-label">Name</label>
+      <input type="email" class="form-control" id="name" />
     </div>
     <div class="mb-3">
-      <label for="exampleFormControlInput1" class="form-label">Email</label>
-      <input type="email" class="form-control" id="exampleFormControlInput1" />
+      <label for="email" class="form-label">Email</label>
+      <input type="email" class="form-control" id="email" />
     </div>
     <div class="mb-3">
-      <label for="exampleFormControlInput1" class="form-label"
-        >Phone Number</label
-      >
-      <input type="email" class="form-control" id="exampleFormControlInput1" />
+      <label for="phone" class="form-label">Phone Number</label>
+      <input type="email" class="form-control" id="phone" />
     </div>
     <div class="mb-3">
-      <label for="exampleFormControlInput1" class="form-label">Subject</label>
+      <label for="subject" class="form-label">Subject</label>
       <select id="subject" class="form-control custom-select">
         <option value=""></option>
         <option value="feedback">Kritik</option>
@@ -76,17 +74,15 @@
       </select>
     </div>
     <div class="mb-3">
-      <label for="exampleFormControlTextarea1" class="form-label"
-        >Your Message</label
-      >
-      <textarea
-        class="form-control"
-        id="exampleFormControlTextarea1"
-        rows="3"
-      ></textarea>
+      <label for="message" class="form-label">Your Message</label>
+      <textarea class="form-control" id="message" rows="3"></textarea>
       <div class="form-actions">
-        <button type="submit" class="submit-button">submit</button>
+        <button onclick="getData(event)" type="submit" class="submit-button">
+          submit
+        </button>
       </div>
     </div>
+
+    <script src="../task3/script.js"></script>
   </body>
 </html>
