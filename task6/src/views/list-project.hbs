@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dumbways Web App</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+  <link rel="stylesheet" href="/style/styleforproject.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-lg bg-body-tertiary header-navbar">
+    <div class="container-fluid">
+      <a href="/home"><img class="logo" src="/asset/LogoDumbways.png" alt="LogoDumbways" /></a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <!-- LEFT MENU -->
+        <ul class="navbar-nav links">
+          <li class="nav-item">
+            <a class="nav-link active home" aria-current="page" href="/home">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active my-project" aria-current="page" href="/my-project">My Project</a>
+          </li>
+        </ul>
+
+        <!-- RIGHT MENU -->
+        <div class="ms-auto right-menu">
+          <button class="btn contact-me" type="submit">
+            <a href="/contact" class="text-decoration-none text-white">
+              Contact Me
+            </a>
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <!-- Title -->
+    <h1 id="project-title" class="text-center fw-bold mb-5">Loading...</h1>
+
+    <div class="row">
+      <!-- Left: Image -->
+      <div class="col-md-8 mb-4 mb-md-0">
+        <img id="project-img" src="" alt="Project Image" class="img-fluid rounded shadow" />
+      </div>
+
+      <!-- Right: Details -->
+      <div class="col-md-4">
+        <!-- Duration -->
+        <div class="mb-4">
+          <h5 class="fw-semibold">Duration</h5>
+          <p class="mb-1">
+            <i class="bi bi-calendar-event me-2"></i>
+          </p>
+          <p>
+            <i class="bi bi-clock me-2"></i>
+          </p>
+        </div>
+
+        <!-- Technologies -->
+        <div>
+          <h5 class="fw-semibold">Technologies</h5>
+          <div class="row" id="tech-container">
+            <!-- Teknologi akan diisi oleh JavaScript -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Description -->
+    <div class="mt-5 project-description">
+      <!-- Deskripsi akan diisi oleh JavaScript -->
+    </div>
+  </div>
+<!-- Full-width footer -->
+<footer class="bg-dark text-center text-white mt-5">
+  <div class="container p-4 pb-0">
+    <!-- Section: Social media -->
+    <section class="mb-4">
+      <!-- Facebook -->
+      <a class="btn btn-outline-light btn-floating m-1" href="https://www.facebook.com/arafat.djembar" role="button">
+        <img src="/asset/facebook.svg" alt="GitHub" style="width: 24px; height: 24px;">
+      </a>
+
+      <!-- Twitter -->
+      <a class="btn btn-outline-light btn-floating m-1" href="https://x.com/JejeMetalhead" role="button">
+        <img src="/asset/twitter.svg" alt="GitHub" style="width: 24px; height: 24px;">
+      </a>
+
+      <!-- Instagram -->
+      <a class="btn btn-outline-light btn-floating m-1" href="https://www.instagram.com/djembaraa/" role="button">
+        <img src="/asset/instagram.svg" alt="GitHub" style="width: 24px; height: 24px;">
+      </a>
+
+      <!-- Linkedin -->
+      <a class="btn btn-outline-light btn-floating m-1" href="https://www.linkedin.com/in/djembar-arafat-9a6602178/"
+        role="button">
+        <img src="/asset/linkedin.svg" alt="GitHub" style="width: 24px; height: 24px;">
+      </a>
+
+      <!-- Github -->
+      <a class="btn btn-outline-light btn-floating m-1" href="https://github.com/djembaraa" role="button">
+        <img src="/asset/github.png" alt="GitHub" style="width: 24px; height: 24px;">
+      </a>
+    </section>
+    <!-- Section: Social media -->
+  </div>
+
+  <!-- Copyright -->
+  <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2);">
+    © 2025 Copyright:
+    <a class="text-white" href="mailto:djembararafat98@gmail.com">Made by Djembaraa</a>
+  </div>
+</footer>
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/script/list-project.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,131 @@
+* {
+    font-family: poppins;
+}
+
+.tech-icon {
+    width: 20px;
+    height: 20px;
+    object-fit: contain; }
+
+.header-navbar {
+            background-color: white;
+            padding: 0px 40px;
+            justify-content: space-between;
+            display: flex;
+            align-items: center;
+            box-shadow: -1px -28px 15px 4px rgba(38, 38, 38, 0.3);
+            -webkit-box-shadow: -1px -28px 15px 4px rgba(38, 38, 38, 0.3);
+            -moz-box-shadow: -1px -28px 15px 4px rgba(38, 38, 38, 0.3);
+            margin-top: 5px;
+        }
+    
+        .left-menu {
+            display: flex;
+            align-items: center;
+        }
+    
+        .logo {
+            height: 30px;
+            margin-right: 40px;
+            cursor: pointer;
+        }
+    
+        .links {
+            list-style: none;
+            display: flex
+        }
+    
+        .links li a {
+            text-decoration: none;
+        }
+    
+        .home {
+            color: black;
+            font-family: "Poppins", sans-serif;
+            font-style: normal;
+            padding: 22px 25px;
+            transition: background-color 0.5s;
+        }
+    
+        .home:hover {
+            background-color: #fe4e30;
+            padding: 22px 25px;
+        }
+    
+        .home:active {
+            opacity: 75%;
+            padding: 22px 25px;
+            transition: opacity 0.3s !important;
+        }
+    
+        .my-project {
+            color: black;
+            padding: 22px 25px;
+            transition: background-color 0.5s;
+        }
+    
+        .my-project:hover {
+            background-color: #fe4e30;
+            padding: 22px 25px;
+            transition: background-color 0.5s;
+        }
+    
+        .my-project:active {
+            opacity: 75%;
+            padding: 22px 25px;
+            transition: opacity 0.3s !important;
+        }
+    
+        .right-menu .contact-me {
+            background-color: #0f172a;
+            display: inline-block;
+            border-radius: 12px;
+            color: white;
+            padding: 5px 20px;
+            cursor: pointer;
+            transition: opacity 0.5s;
+        }
+    
+    
+        .contact-me:hover {
+            background-color: #0f172a;
+            opacity: 75%;
+            transition: opacity 0.5s;
+        }
+    
+        .contact-me:active {
+            background-color: #0f172a !important;
+            opacity: 60%;
+            transition: opacity 0.3s;
+        }
+    
+        .contact-me a {
+            color: white;
+            text-decoration: none;
+        }
+    
+        .contact-me a:after {
+            color: white;
+        }
+    
+        .link-button {
+            text-decoration: none;
+            color: #0f172a;
+            transition: 0.7s;
+        }
+    
+        .link-button:hover {
+            opacity: 50%;
+            transition: 0.7s;
+        }
+    
+        .link-button:after {
+            color: #0f172a;   }
+
+                        .right-menu .btn-outline-success.contact-me a {
+                            color: white !important;
+                        }
+            
+                        /* Atau lebih baik tanpa !important: */
+                        .right-menu .contact-me a {
+                            color: white;           }

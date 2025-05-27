@@ -1,0 +1,841 @@
+import express from "express";
+import path from "path";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
+import pool from "./db.js";
+// const { connectDb } = require("./db.js");
+
+// Inisialisasi __dirname dan __filename untuk ES Modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Import pool database (sesuaikan dengan cara import yang benar)
+// import connect from "./db.js"; // Jika db mendukung import, jika tidak gunakan require
+
+const app = express();
+const port = 3000;
+
+// connectDb();
+
+// Middleware untuk parsing JSON dan form data
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+
+// Serve file statis dari folder 'public' (css, script, image)
+app.use(express.static(path.join(__dirname, "public")));
+
+// Set view engine dan folder views
+app.set("view engine", "hbs");
+app.set("views", path.join(__dirname, "src/views"));
+
+// Route GET untuk halaman-halaman
+app.get("/home", (req, res) => {
+  res.render("index");
+});
+
+app.get("/my-project", (req, res) => {
+  res.render("project");
+});
+
+app.get("/contact", (req, res) => {
+  res.render("contact");
+});
+
+app.get("/contact-after", (req, res) => {
+  res.render("contact-after");
+});
+
+app.get("/list-project/:projectName", (req, res) => {
+  const projectName = req.params.projectName;
+  res.render("list-project", { projectName });
+});
+
+// Route POST untuk form contact
+// app.post("/contact", (req, res) => {
+//   const { name, email, phone, subject, message } = req.body;
+//   console.log("New contact submission:");
+//   console.log(`Name: ${name}`);
+//   console.log(`Email: ${email}`);
+//   console.log(`Phone: ${phone}`);
+//   console.log(`Subject: ${subject}`);
+//   console.log(`Message: ${message}`);
+//   res.render("contact-after");
+// });
+
+// Jalankan server
+app.listen(port, () => {
+  console.log(`Berhasil masuk ke server ${port}`);
+});
+
+// Create (POST)
+app.post("my-project", async (req, res) => {
+  try {
+    const { name, email, phone, message } = req.body;
+    const result = await pool.query(
+      "INSERT INTO person (name, email, phone, message) VALUES ($1, $2, $3, $4) RETURNING *",
+      [name, email, phone, message]
+    );
+    // res.status(201).json(result.rows[0]);
+    res.render("contact-after");
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Server error");
+  }
+});
+
+
+// Read (GET all)
+// app.get("/contact", async (req, res) => {
+//   try {
+//     const result = await pool.query("SELECT * FROM person");
+//     res.json(result.rows);
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).send("Server error");
+//   }
+// });
+
+// // Read (GET one)
+// app.get("/contact/:id", async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     const result = await pool.query("SELECT * FROM person WHERE id = $1", [id]);
+//     if (result.rows.length === 0) {
+//       return res.status(404).send("Item not found");
+//     }
+//     res.json(result.rows[0]);
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).send("Server error");
+//   }
+// });
+
+// Update (PUT)
+// app.put("/items/:id", async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     const { name, description } = req.body;
+//     const result = await pool.query(
+//       "UPDATE items SET name = $1, description = $2 WHERE id = $3 RETURNING *",
+//       [name, description, id]
+//     );
+//     if (result.rows.length === 0) {
+//       return res.status(404).send("Item not found");
+//     }
+//     res.json(result.rows[0]);
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).send("Server error");
+//   }
+// });
+
+// Delete (DELETE)
+// app.delete("/items/:id", async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     const result = await pool.query(
+//       "DELETE FROM items WHERE id = $1 RETURNING *",
+//       [id]
+//     );
+//     if (result.rows.length === 0) {
+//       return res.status(404).send("Item not found");
+//     }
+//     res.json({ message: "Item deleted" });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).send("Server error");
+//   }
+// });
+
+
+// Initialize projects array from localStorage
+let projects = JSON.parse(localStorage.getItem("allProjects")) || [];
+let currentEditId = null; // To track the ID of the project being edited
+
+// Load projects when page loads
+document.addEventListener("DOMContentLoaded", function () {
+  renderCards();
+});
+
+// Function to populate form for editing
+function populateFormForEdit(projectId) {
+  const projectToEdit = projects.find((p) => p.id === projectId);
+  if (!projectToEdit) {
+    console.error("Project not found for editing:", projectId);
+    return;
+  }
+
+  currentEditId = projectId;
+
+  document.getElementById("project-name").value = projectToEdit.name;
+  // Dates are stored as timestamps, convert to YYYY-MM-DD for input
+  if (projectToEdit.start) {
+    document.getElementById("start-date").value = new Date(projectToEdit.start)
+      .toISOString()
+      .split("T")[0];
+  }
+  if (projectToEdit.end) {
+    document.getElementById("end-date").value = new Date(projectToEdit.end)
+      .toISOString()
+      .split("T")[0];
+  }
+  document.getElementById("description").value = projectToEdit.desc;
+  document.getElementById("techNode").checked = projectToEdit.techs.node;
+  document.getElementById("techReact").checked = projectToEdit.techs.react;
+  document.getElementById("techNext").checked = projectToEdit.techs.next;
+  document.getElementById("techTS").checked = projectToEdit.techs.typescript;
+
+  // Clear the file input as we cannot pre-fill it.
+  // User must re-select image if they want to change it.
+  document.getElementById("project-image").value = "";
+  // Change submit button text to indicate editing mode
+  const submitButton = document
+    .getElementById("project-form")
+    .querySelector('button[type="submit"]');
+  if (submitButton) {
+    submitButton.textContent = "Update Project";
+  }
+  // Optional: Scroll to form for better UX
+  const projectForm = document.getElementById("project-form");
+  if (projectForm) {
+    projectForm.scrollIntoView({ behavior: "smooth" });
+  }
+}
+
+// Form submission handler
+function getData(e) {
+  e.preventDefault();
+
+  // Get form values
+  const name = document.getElementById("project-name").value;
+  const startValue = document.getElementById("start-date").value;
+  const endValue = document.getElementById("end-date").value;
+  const desc = document.getElementById("description").value;
+  const node = document.getElementById("techNode").checked;
+  const react = document.getElementById("techReact").checked;
+  const next = document.getElementById("techNext").checked;
+  const typescript = document.getElementById("techTS").checked;
+  const imageFile = document.getElementById("project-image").files[0];
+
+  // Validation
+  if (!name || !desc) {
+    alert("Please fill Project Name and Description fields.");
+    return;
+  }
+  if (!startValue || !endValue) {
+    alert("Please enter valid dates");
+    return;
+  }
+
+  const start = Date.parse(startValue);
+  const end = Date.parse(endValue);
+
+  if (isNaN(start) || isNaN(end)) {
+    alert("Please enter valid dates");
+    return;
+  }
+  if (end < start) {
+    alert("End date cannot be before start date.");
+    return;
+  }
+
+  // Calculate duration in months
+  const duration = Math.round((end - start) / (1000 * 60 * 60 * 24 * 30));
+
+  // Centralized function to process project data (either update or add)
+  const processProjectData = (imgResultUrl) => {
+    if (currentEditId) {
+      // --- UPDATE EXISTING PROJECT ---
+      const projectIndex = projects.findIndex((p) => p.id === currentEditId);
+      if (projectIndex > -1) {
+        const projectToUpdate = projects[projectIndex];
+        projectToUpdate.name = name;
+        projectToUpdate.start = start; // Store actual start date timestamp
+        projectToUpdate.end = end; // Store actual end date timestamp
+        projectToUpdate.duration = duration;
+        projectToUpdate.desc = desc;
+        projectToUpdate.techs = { node, react, next, typescript };
+        if (imgResultUrl) {
+          // Only update image if a new one was provided and read
+          projectToUpdate.img = imgResultUrl;
+        }
+        // projectToUpdate.createdAt remains the same, or you can add a lastModifiedAt
+        // projects[projectIndex] = projectToUpdate; // This line is redundant as projectToUpdate is a reference
+      } else {
+        alert("Error finding project to update. Please try again.");
+        // Reset edit mode indicators if project not found during update attempt
+        currentEditId = null;
+        const submitButton = e.target.querySelector('button[type="submit"]');
+        if (submitButton) {
+          submitButton.textContent = "Submit";
+        }
+        return; // Exit if project not found
+      }
+    } else {
+      // --- ADD NEW PROJECT ---
+      // For new projects, image is required (imgResultUrl must be valid)
+      if (!imgResultUrl) {
+        alert("Image processing failed or no image selected for new project."); // Should be caught earlier by imageFile check
+        return;
+      }
+      const newProject = {
+        id: Date.now().toString(),
+        name,
+        start, // Store actual start date timestamp
+        end, // Store actual end date timestamp
+        duration,
+        desc,
+        techs: { node, react, next, typescript },
+        img: imgResultUrl,
+        createdAt: new Date().toISOString(),
+      };
+      projects.push(newProject);
+    }
+
+    localStorage.setItem("allProjects", JSON.stringify(projects));
+    renderCards();
+    e.target.reset(); // Reset form fields
+    document.getElementById("project-image").value = ""; // Ensure file input display is cleared
+
+    if (currentEditId) {
+      currentEditId = null; // Reset edit mode
+      const submitButton = e.target.querySelector('button[type="submit"]');
+      if (submitButton) {
+        submitButton.textContent = "Submit"; // Reset button text
+      }
+    }
+  };
+
+  // Image handling
+  if (currentEditId) {
+    // EDIT MODE
+    if (imageFile) {
+      // If a new image is selected during edit
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        processProjectData(event.target.result);
+      };
+      reader.onerror = function () {
+        alert("Error reading new image file for update.");
+      };
+      reader.readAsDataURL(imageFile);
+    } else {
+      // No new image selected, process update with existing image
+      // We don't need to pass the image URL here if it's not changing.
+      // The 'imgResultUrl' parameter in processProjectData will be null/undefined,
+      // and the existing projectToUpdate.img will be preserved.
+      processProjectData(null);
+    }
+  } else {
+    // ADD NEW PROJECT MODE
+    if (!imageFile) {
+      // Image is required for new project.
+      alert("Please upload an image for the project.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = function (event) {
+      processProjectData(event.target.result);
+    };
+    reader.onerror = function () {
+      alert("Error reading image file.");
+    };
+    reader.readAsDataURL(imageFile);
+  }
+}
+
+function truncate(text, max) {
+  return text.length > max ? text.substring(0, max) + "..." : text;
+}
+
+// Render project cards
+function renderCards() {
+  const container = document.getElementById("cardContainer");
+  if (!container) return;
+
+  container.innerHTML = projects
+    .map(
+      (p) => `
+    <div class="col-md-4 mb-4">
+      <div class="card h-100">
+      <a href="/list-project/${encodeURIComponent(
+        p.name
+      )}" >        <img src="${p.img}" class="card-img-top fixed-img" alt="${
+        p.name
+      }">
+</a>
+        <div class="card-body">
+          <h5 class="card-title">
+            <a href="/list-project/${encodeURIComponent(p.name)}" 
+               class="project-link" 
+               data-project='${JSON.stringify(p)}'>
+              ${p.name} - ${new Date().getFullYear()}
+            </a>
+          </h5>
+          <p class="card-text"><strong>Duration:</strong> ${
+            p.duration
+          } months</p>
+          <p class="card-text">${truncate(p.desc, 100)}</p>
+          <div class="tech-icons mt-2">
+            ${
+              p.techs.node
+                ? '<img class="tech-icon" src="./asset/android.png" title="Node JS" />'
+                : ""
+            }
+            ${
+              p.techs.react
+                ? '<img class="tech-icon" src="./asset/java.png" title="React JS" />'
+                : ""
+            }
+            ${
+              p.techs.next
+                ? '<img class="tech-icon" src="./asset/play-store.png" title="Next JS" />'
+                : ""
+            }
+            ${
+              p.techs.typescript
+                ? '<img class="tech-icon" src="./asset/android.png" title="TypeScript" />'
+                : ""
+            }
+          </div>
+        </div>
+        <div class="card-footer bg-transparent">
+          <div class="d-flex justify-content-between">
+            <button id="btn-edit" class="btn btn-sm edit-btn" data-id="${p.id}">
+              Edit
+            </button>
+            <span class="btn-span"></span>
+            <button id="btn-delete" class="btn btn-sm delete-btn" data-id="${
+              p.id
+            }">
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `
+    )
+    .join("");
+
+  // Add event listeners to project links
+  document.querySelectorAll(".project-link").forEach((link) => {
+    link.addEventListener("click", function (e) {
+      e.preventDefault();
+      const project = JSON.parse(this.getAttribute("data-project"));
+      localStorage.setItem("selectedProject", JSON.stringify(project));
+      window.location.href = this.getAttribute("href");
+    });
+  });
+
+  // Add delete functionality
+  document.querySelectorAll(".delete-btn").forEach((btn) => {
+    btn.addEventListener("click", function () {
+      const id = this.getAttribute("data-id");
+      deleteProject(id);
+    });
+  });
+
+  // Add event listeners for edit buttons
+  document.querySelectorAll(".edit-btn").forEach((btn) => {
+    btn.addEventListener("click", function () {
+      const id = this.getAttribute("data-id");
+      populateFormForEdit(id); // Call the new function to populate form
+    });
+  });
+}
+
+// Delete project function
+function deleteProject(id) {
+  if (confirm("Are you sure you want to delete this project?")) {
+    projects = projects.filter((p) => p.id !== id);
+    localStorage.setItem("allProjects", JSON.stringify(projects));
+    renderCards();
+  }
+}
+
+// Add form submit event listener
+const projectForm = document.getElementById("project-form");
+if (projectForm) {
+  projectForm.addEventListener("submit", getData);
+}
+
+
+-----------------
+
+import express from "express";
+import path from "path";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
+import pool from "./db.js"; // Pastikan path ini benar dan pool diekspor dengan benar
+
+// Inisialisasi __dirname dan __filename untuk ES Modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const app = express();
+const port = 3000; // Atau port pilihan Anda
+
+// Middleware
+app.use(express.json({ limit: "10mb" }));
+// Penting untuk form submission tradisional (non-AJAX) agar req.body terisi
+app.use(express.urlencoded({ extended: true, limit: "10mb" })); // Diubah ke true untuk parsing yang lebih kaya, false juga oke untuk form sederhana
+app.use(express.static(path.join(__dirname, "public")));
+
+// Set view engine dan folder views
+app.set("view engine", "hbs");
+app.set("views", path.join(__dirname, "src/views"));
+
+// === ROUTE GET HALAMAN ===
+app.get("/home", (req, res) => res.render("index"));
+app.get("/my-project", (req, res) => res.render("project"));
+app.get("/contact", (req, res) => res.render("contact")); // Merender form kontak
+app.get("/contact-after", (req, res) => res.render("contact-after")); // Halaman setelah submit kontak
+
+app.get("/list-project/:projectName", (req, res) => {
+  const { projectName } = req.params;
+  res.render("list-project", {
+    pageTitle: decodeURIComponent(projectName) + " - Detail Proyek",
+  });
+});
+
+// === API ROUTES UNTUK CRUD PROYEK (Ini dari sebelumnya, tetap ada) ===
+// ... (Semua route GET, POST, PUT, DELETE untuk /api/projects dan /api/project-detail tetap sama seperti yang sudah kita buat) ...
+// READ: Mendapatkan semua proyek
+app.get("/api/projects", async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT "project-name" as name, "start-date" as start, "end-date" as end, deskripsi as desc, teknologi, image FROM public.project ORDER BY "project-name" ASC'
+    );
+    const projectsFromDB = result.rows.map((project) => {
+      const p = { ...project };
+      if (p.image) {
+        p.img = `data:image/jpeg;base64,${Buffer.from(p.image).toString(
+          "base64"
+        )}`;
+      } else {
+        p.img = null;
+      }
+      delete p.image;
+      if (p.start && p.end) {
+        const startDate = new Date(p.start);
+        const endDate = new Date(p.end);
+        p.duration = Math.round(
+          (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24 * 30)
+        );
+      } else {
+        p.duration = 0;
+      }
+      p.techs = {
+        node: p.teknologi,
+        react: false,
+        next: false,
+        typescript: false,
+      };
+      p.id = p.name;
+      return p;
+    });
+    res.json(projectsFromDB);
+  } catch (error) {
+    console.error("Error fetching projects:", error);
+    res
+      .status(500)
+      .json({ message: "Gagal mengambil data proyek", detail: error.message });
+  }
+});
+
+// API: Mendapatkan detail satu proyek berdasarkan nama
+app.get("/api/project-detail/:projectName", async (req, res) => {
+  const { projectName } = req.params;
+  try {
+    const dbResult = await pool.query(
+      'SELECT "project-name" as name, "start-date" as start, "end-date" as end, deskripsi as desc, teknologi, image FROM public.project WHERE "project-name" = $1',
+      [projectName]
+    );
+    if (dbResult.rows.length > 0) {
+      const project = { ...dbResult.rows[0] };
+      if (project.image) {
+        project.img = `data:image/jpeg;base64,${Buffer.from(
+          project.image
+        ).toString("base64")}`;
+      } else {
+        project.img = null;
+      }
+      delete project.image;
+      if (project.start && project.end) {
+        const startDate = new Date(project.start);
+        const endDate = new Date(project.end);
+        project.duration = Math.round(
+          (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24 * 30)
+        );
+      } else {
+        project.duration = 0;
+      }
+      project.techs = {
+        node: project.teknologi,
+        react: false,
+        next: false,
+        typescript: false,
+      };
+      project.id = project.name;
+      res.json(project);
+    } else {
+      res.status(404).json({ message: "Proyek tidak ditemukan" });
+    }
+  } catch (error) {
+    console.error(
+      `Error fetching project detail for API "${projectName}":`,
+      error
+    );
+    res.status(500).json({
+      message: "Server error saat mengambil detail proyek.",
+      detail: error.message,
+    });
+  }
+});
+
+// CREATE: Menambahkan proyek baru
+app.post("/api/add-project", async (req, res) => {
+  try {
+    const { name, start, end, desc, techs, img } = req.body;
+    if (!name || !start || !end || !desc || !techs || !img) {
+      return res.status(400).json({ message: "Semua field wajib diisi." });
+    }
+    const projectNameDB = name;
+    const startDateDB = new Date(start);
+    const endDateDB = new Date(end);
+    const deskripsiDB = desc;
+    const teknologiDB = !!(
+      techs.node ||
+      techs.react ||
+      techs.next ||
+      techs.typescript
+    );
+    const base64Prefix = /^data:image\/\w+;base64,/;
+    if (!base64Prefix.test(img)) {
+      return res.status(400).json({ message: "Format gambar tidak valid." });
+    }
+    const base64ImageData = img.replace(base64Prefix, "");
+    const imageBuffer = Buffer.from(base64ImageData, "base64");
+    const queryText = `
+      INSERT INTO public.project ("project-name", "start-date", "end-date", "deskripsi", "teknologi", "image") 
+      VALUES ($1, $2, $3, $4, $5, $6) 
+      RETURNING "project-name" as name, "start-date" as start, "end-date" as end, deskripsi as desc, teknologi;
+    `;
+    const values = [
+      projectNameDB,
+      startDateDB,
+      endDateDB,
+      deskripsiDB,
+      teknologiDB,
+      imageBuffer,
+    ];
+    const result = await pool.query(queryText, values);
+    const newProjectData = result.rows[0];
+    const projectForClient = {
+      ...newProjectData,
+      img,
+      techs,
+      id: newProjectData.name,
+    };
+    if (projectForClient.start && projectForClient.end) {
+      const startDate = new Date(projectForClient.start);
+      const endDate = new Date(projectForClient.end);
+      projectForClient.duration = Math.round(
+        (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24 * 30)
+      );
+    } else {
+      projectForClient.duration = 0;
+    }
+    res.status(201).json({
+      message: "Proyek berhasil ditambahkan!",
+      project: projectForClient,
+    });
+  } catch (error) {
+    console.error("Server error saat menambahkan proyek:", error);
+    if (error.code === "23505" && error.constraint === "project_pkey") {
+      return res
+        .status(409)
+        .json({ message: `Proyek dengan nama "${req.body.name}" sudah ada.` });
+    }
+    res.status(500).json({
+      message: "Terjadi kesalahan pada server.",
+      detail: error.message,
+    });
+  }
+});
+
+// UPDATE: Memperbarui proyek berdasarkan nama (Primary Key)
+app.put("/api/projects/:projectName", async (req, res) => {
+  try {
+    const originalProjectName = req.params.projectName;
+    const { name, start, end, desc, techs, img } = req.body;
+    if (!name || !start || !end || !desc || !techs) {
+      return res.status(400).json({
+        message:
+          "Field nama, tanggal, deskripsi, dan teknologi wajib diisi untuk update.",
+      });
+    }
+    const newProjectNameDB = name;
+    const startDateDB = new Date(start);
+    const endDateDB = new Date(end);
+    const deskripsiDB = desc;
+    const teknologiDB = !!(
+      techs.node ||
+      techs.react ||
+      techs.next ||
+      techs.typescript
+    );
+    let imageQueryPart = "";
+    const queryParams = [
+      newProjectNameDB,
+      startDateDB,
+      endDateDB,
+      deskripsiDB,
+      teknologiDB,
+    ];
+    if (img && img.startsWith("data:image")) {
+      const base64Prefix = /^data:image\/\w+;base64,/;
+      if (!base64Prefix.test(img)) {
+        return res
+          .status(400)
+          .json({ message: "Format gambar baru tidak valid." });
+      }
+      const base64ImageData = img.replace(base64Prefix, "");
+      const imageBuffer = Buffer.from(base64ImageData, "base64");
+      queryParams.push(imageBuffer);
+      imageQueryPart = `, "image" = $${queryParams.length}`;
+    }
+    queryParams.push(originalProjectName);
+    const queryText = `
+      UPDATE public.project 
+      SET "project-name" = $1, "start-date" = $2, "end-date" = $3, "deskripsi" = $4, "teknologi" = $5 ${imageQueryPart}
+      WHERE "project-name" = $${queryParams.length}
+      RETURNING "project-name" as name, "start-date" as start, "end-date" as end, deskripsi as desc, teknologi;
+    `;
+    const result = await pool.query(queryText, queryParams);
+    if (result.rowCount === 0) {
+      return res
+        .status(404)
+        .json({ message: "Proyek tidak ditemukan untuk diperbarui." });
+    }
+    const updatedProjectData = result.rows[0];
+    const projectForClient = {
+      ...updatedProjectData,
+      img: img && img.startsWith("data:image") ? img : null,
+      techs,
+      id: updatedProjectData.name,
+    };
+    if (projectForClient.start && projectForClient.end) {
+      const startDate = new Date(projectForClient.start);
+      const endDate = new Date(projectForClient.end);
+      projectForClient.duration = Math.round(
+        (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24 * 30)
+      );
+    } else {
+      projectForClient.duration = 0;
+    }
+    res.status(200).json({
+      message: "Proyek berhasil diperbarui!",
+      project: projectForClient,
+    });
+  } catch (error) {
+    console.error("Server error saat memperbarui proyek:", error);
+    if (error.code === "23505") {
+      return res.status(409).json({
+        message: `Nama proyek "${req.body.name}" mungkin sudah digunakan atau ada konflik kunci.`,
+      });
+    }
+    res.status(500).json({
+      message: "Terjadi kesalahan pada server saat update.",
+      detail: error.message,
+    });
+  }
+});
+
+// DELETE: Menghapus proyek berdasarkan nama
+app.delete("/api/projects/:projectName", async (req, res) => {
+  try {
+    const { projectName } = req.params;
+    const result = await pool.query(
+      'DELETE FROM public.project WHERE "project-name" = $1 RETURNING "project-name"',
+      [projectName]
+    );
+    if (result.rowCount === 0) {
+      return res
+        .status(404)
+        .json({ message: "Proyek tidak ditemukan untuk dihapus." });
+    }
+    res
+      .status(200)
+      .json({ message: `Proyek "${projectName}" berhasil dihapus.` });
+  } catch (error) {
+    console.error("Server error saat menghapus proyek:", error);
+    res.status(500).json({
+      message: "Terjadi kesalahan pada server saat delete.",
+      detail: error.message,
+    });
+  }
+});
+
+// === ROUTE BARU UNTUK FORM KONTAK ===
+app.post("/contact", async (req, res) => {
+  try {
+    // Ambil data dari form body. `extended: true` pada urlencoded memungkinkan parsing nested objects jika ada.
+    // Untuk form sederhana ini, `extended: false` juga cukup.
+    const { name, email, phone, subject, message } = req.body; // 'subject' ada di form, tapi tidak di tabel 'person'
+
+    // Validasi sederhana di server (opsional, karena klien sudah validasi)
+    if (!name || !email || !phone || !message) {
+      // 'subject' tidak divalidasi karena tidak disimpan
+      // Sebaiknya kirim respons error atau render halaman kontak lagi dengan pesan error
+      console.log("Data form kontak tidak lengkap:", req.body);
+      return res.status(400).render("contact", {
+        errorMessage: "Semua field (kecuali subjek jika opsional) wajib diisi.",
+        // Kirim kembali nilai yang sudah diisi agar pengguna tidak perlu mengisi ulang
+        oldValues: req.body,
+      });
+    }
+
+    // Konversi nomor telepon ke integer. Hati-hati jika ada karakter non-numerik.
+    const phoneNumberInt = parseInt(phone, 10);
+    if (isNaN(phoneNumberInt)) {
+      console.log("Nomor telepon tidak valid:", phone);
+      return res.status(400).render("contact", {
+        errorMessage: "Nomor telepon harus berupa angka.",
+        oldValues: req.body,
+      });
+    }
+
+    // Query untuk insert ke tabel 'person'. Kolom "Id" auto-increment.
+    // Kolom 'subject' diabaikan karena tidak ada di skema tabel 'person' Anda.
+    const queryText = `
+      INSERT INTO public.person (name, email, phone, message) 
+      VALUES ($1, $2, $3, $4) 
+      RETURNING "Id", name; 
+    `; // RETURNING opsional, tapi bisa berguna untuk logging atau konfirmasi.
+
+    const values = [name, email, phoneNumberInt, message];
+
+    const result = await pool.query(queryText, values);
+
+    console.log("Data kontak berhasil disimpan:", result.rows[0]);
+    // Setelah berhasil, render halaman contact-after.hbs
+    res.render("contact-after");
+  } catch (error) {
+    console.error("Server error saat menyimpan data kontak:", error);
+    // Untuk error yang lebih spesifik, Anda bisa memeriksa error.code atau error.constraint
+    // Jika terjadi error, mungkin lebih baik merender halaman kontak lagi dengan pesan error
+    // daripada hanya mengirim "Server error".
+    res.status(500).render("contact", {
+      errorMessage:
+        "Terjadi kesalahan pada server saat menyimpan data Anda. Silakan coba lagi.",
+      oldValues: req.body, // Kirim kembali nilai yang sudah diisi
+    });
+  }
+});
+
+// Jalankan server
+app.listen(port, () => {
+  console.log(`Server berjalan di port ${port}`);
+});

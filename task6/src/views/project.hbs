@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add My Project</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/style/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-lg bg-body-tertiary header-navbar">
+    <div class="container-fluid">
+      <a href="/home"><img class="logo" src="/asset/LogoDumbways.png" alt="LogoDumbways" /></a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav links">
+          <li class="nav-item">
+            <a class="nav-link active home" aria-current="page" href="/home">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active my-project" aria-current="page" href="/my-project">My Project</a>
+          </li>
+        </ul>
+        <div class="ms-auto right-menu">
+          <a href="/contact" class="btn btn-outline-success contact-me">Contact Me</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container my-5">
+    <h3 class="text-center fw-bold mb-5">ADD MY PROJECT</h3>
+    <form id="project-form" enctype="multipart/form-data">
+      <div class="mb-3">
+        <label class="form-label">Project Name</label>
+        <input type="text" class="form-control" id="project-name" required>
+      </div>
+      <div class="row g-3 mb-3">
+        <div class="col">
+          <label class="form-label">Start Date</label>
+          <input type="date" class="form-control" id="start-date" required>
+        </div>
+        <div class="col">
+          <label class="form-label">End Date</label>
+          <input type="date" class="form-control" id="end-date" required>
+        </div>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Description</label>
+        <textarea class="form-control" id="description" rows="5" required></textarea>
+      </div>
+      <div class="mb-3">
+        <label class="form-label fw-bold">Technologies</label>
+        <div class="row">
+          <div class="col-6">
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="checkbox" id="techNode">
+              <label class="form-check-label" for="techNode">Node Js</label>
+            </div>
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="checkbox" id="techReact">
+              <label class="form-check-label" for="techReact">React Js</label>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="checkbox" id="techNext">
+              <label class="form-check-label" for="techNext">Next Js</label>
+            </div>
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="checkbox" id="techTS">
+              <label class="form-check-label" for="techTS">TypeScript</label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mb-4">
+        <label for="project-image" class="form-label">Upload Image</label>
+        <input class="form-control" type="file" accept="image/*" id="project-image" required>
+      </div>
+      <div class="text-end">
+        <button type="submit" class="btn btn-submit">Submit</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="container my-5">
+    <h3 class="text-center fw-bold mb-5">MY PROJECT</h3>
+    <div id="cardContainer" class="row row-cols-1 row-cols-md-3 g-4"></div>
+  </div>
+<!-- Full-width footer -->
+<footer class="bg-dark text-center text-white mt-5">
+  <div class="container p-4 pb-0">
+    <!-- Section: Social media -->
+    <section class="mb-4">
+      <!-- Facebook -->
+      <a class="btn btn-outline-light btn-floating m-1" href="https://www.facebook.com/arafat.djembar" role="button">
+        <img src="/asset/facebook.svg" alt="GitHub" style="width: 24px; height: 24px;">
+      </a>
+
+      <!-- Twitter -->
+      <a class="btn btn-outline-light btn-floating m-1" href="https://x.com/JejeMetalhead" role="button">
+        <img src="/asset/twitter.svg" alt="GitHub" style="width: 24px; height: 24px;">
+      </a>
+
+      <!-- Instagram -->
+      <a class="btn btn-outline-light btn-floating m-1" href="https://www.instagram.com/djembaraa/" role="button">
+        <img src="/asset/instagram.svg" alt="GitHub" style="width: 24px; height: 24px;">
+      </a>
+
+      <!-- Linkedin -->
+      <a class="btn btn-outline-light btn-floating m-1" href="https://www.linkedin.com/in/djembar-arafat-9a6602178/"
+        role="button">
+        <img src="/asset/linkedin.svg" alt="GitHub" style="width: 24px; height: 24px;">
+      </a>
+
+      <!-- Github -->
+      <a class="btn btn-outline-light btn-floating m-1" href="https://github.com/djembaraa" role="button">
+        <img src="/asset/github.png" alt="GitHub" style="width: 24px; height: 24px;">
+      </a>
+    </section>
+    <!-- Section: Social media -->
+  </div>
+
+  <!-- Copyright -->
+  <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2);">
+    © 2025 Copyright:
+    <a class="text-white" href="mailto:djembararafat98@gmail.com">Made by Djembaraa</a>
+  </div>
+</footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/script/script.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,22 @@
+{
+  "name": "personal-web",
+  "version": "1.0.0",
+  "description": "Belajar Express JS",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js"
+  },
+  "type": "module",
+  "author": "Djembar Arafat",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^2.2.0",
+    "express": "^5.1.0",
+    "hbs": "^4.2.0",
+    "pg": "^8.16.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  },
+  "keywords": []
+}

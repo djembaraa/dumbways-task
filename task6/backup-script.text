@@ -1,0 +1,170 @@
+// Initialize projects array from localStorage
+let projects = JSON.parse(localStorage.getItem("allProjects")) || [];
+
+// Load projects when page loads
+document.addEventListener("DOMContentLoaded", function () {
+  renderCards();
+});
+
+// Form submission handler
+function getData(e) {
+  e.preventDefault();
+
+  // Get form values
+  const name = document.getElementById("project-name").value;
+  const start = Date.parse(document.getElementById("start-date").value);
+  const end = Date.parse(document.getElementById("end-date").value);
+  const desc = document.getElementById("description").value;
+  const node = document.getElementById("techNode").checked;
+  const react = document.getElementById("techReact").checked;
+  const next = document.getElementById("techNext").checked;
+  const typescript = document.getElementById("techTS").checked;
+  const imageFile = document.getElementById("project-image").files[0];
+
+  // Validation
+  if (!name || !desc || !imageFile) {
+    alert("Please fill all required fields");
+    return;
+  }
+
+  if (isNaN(start) || isNaN(end)) {
+    alert("Please enter valid dates");
+    return;
+  }
+
+  // Calculate duration in months
+  const duration = Math.round((end - start) / (1000 * 60 * 60 * 24 * 30));
+
+  // Read image file
+  const reader = new FileReader();
+  reader.onload = function (event) {
+    const newProject = {
+      id: Date.now().toString(), // Add unique ID
+      name,
+      duration,
+      desc,
+      techs: { node, react, next, typescript },
+      img: event.target.result,
+      createdAt: new Date().toISOString(),
+    };
+
+    // Add to projects array and save
+    projects.push(newProject);
+    localStorage.setItem("allProjects", JSON.stringify(projects));
+
+    // Refresh display and reset form
+    renderCards();
+    e.target.reset();
+  };
+
+  reader.onerror = function () {
+    alert("Error reading image file");
+  };
+
+  reader.readAsDataURL(imageFile);
+}
+
+function truncate(text, max) {
+  return text.length > max ? text.substring(0, max) + "..." : text;
+}
+
+// Render project cards
+function renderCards() {
+  const container = document.getElementById("cardContainer");
+  if (!container) return;
+
+  container.innerHTML = projects
+    .map(
+      (p) => `
+    <div class="col-md-4 mb-4">
+      <div class="card h-100">
+      <a href="/list-project/${encodeURIComponent(
+        p.name
+      )}" >        <img src="${p.img}" class="card-img-top fixed-img" alt="${
+        p.name
+      }">
+</a>
+        <div class="card-body">
+          <h5 class="card-title">
+            <a href="/list-project/${encodeURIComponent(p.name)}" 
+               class="project-link" 
+               data-project='${JSON.stringify(p)}'>
+              ${p.name} - ${new Date().getFullYear()}
+            </a>
+          </h5>
+          <p class="card-text"><strong>Duration:</strong> ${
+            p.duration
+          } months</p>
+          <p class="card-text">${truncate(p.desc, 100)}</p>
+          <div class="tech-icons mt-2">
+            ${
+              p.techs.node
+                ? '<img class="tech-icon" src="./asset/android.png" title="Node JS" />'
+                : ""
+            }
+            ${
+              p.techs.react
+                ? '<img class="tech-icon" src="./asset/java.png" title="React JS" />'
+                : ""
+            }
+            ${
+              p.techs.next
+                ? '<img class="tech-icon" src="./asset/play-store.png" title="Next JS" />'
+                : ""
+            }
+            ${
+              p.techs.typescript
+                ? '<img class="tech-icon" src="./asset/android.png" title="TypeScript" />'
+                : ""
+            }
+          </div>
+        </div>
+        <div class="card-footer bg-transparent">
+          <div class="d-flex justify-content-between">
+            <button id="btn-edit" class="btn btn-sm edit-btn" data-id="${p.id}">
+              Edit
+            </button>
+            <span class="btn-span"></span>
+            <button id="btn-delete" class="btn btn-sm delete-btn" data-id="${
+              p.id
+            }">
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `
+    )
+    .join("");
+
+  // Add event listeners to project links
+  document.querySelectorAll(".project-link").forEach((link) => {
+    link.addEventListener("click", function (e) {
+      e.preventDefault();
+      const project = JSON.parse(this.getAttribute("data-project"));
+      localStorage.setItem("selectedProject", JSON.stringify(project));
+      window.location.href = this.getAttribute("href");
+    });
+  });
+
+  // Add delete functionality
+  document.querySelectorAll(".delete-btn").forEach((btn) => {
+    btn.addEventListener("click", function () {
+      const id = this.getAttribute("data-id");
+      deleteProject(id);
+    });
+  });
+}
+
+// Delete project function
+function deleteProject(id) {
+  if (confirm("Are you sure you want to delete this project?")) {
+    projects = projects.filter((p) => p.id !== id);
+    localStorage.setItem("allProjects", JSON.stringify(projects));
+    renderCards();
+  }
+}
+
+// Add form submit event listener
+document.getElementById("project-form").addEventListener("submit", getData);
